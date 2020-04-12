@@ -26,9 +26,11 @@ const wss = new WebSocket.Server({
 const meshHosts = {};
 const connections = {};
 
+const hostExpireMilliseconds = 60 * 60 * 1000;
+
 const registerHost = function (hostInfo) {
     if (meshHosts.hasOwnProperty(hostInfo.id)) {
-        meshHosts[hostInfo.id].connnectionId = hostInfo.connectionId;
+        meshHosts[hostInfo.id].connectionId = hostInfo.connectionId;
         meshHosts[hostInfo.id].remoteAddress = hostInfo.remoteAddress;
         meshHosts[hostInfo.id].updatedAt = new Date();
     } else {
@@ -37,6 +39,15 @@ const registerHost = function (hostInfo) {
             "updatedAt": new Date()
         });
     }
+
+    Object.keys(meshHosts).forEach(id => {
+        if (new Date() - meshHosts[id].updatedAt >= hostExpireMilliseconds) {
+            console.log(`Expired Host:\n${JSON.stringify(meshHosts[id], null, 4)}`);
+            delete meshHosts[id];
+        }
+    });
+
+    console.log(`Registered Host:\n${JSON.stringify(meshHosts, null, 4)}`);
 };
 
 const isSameNetwork = function (addressA, addressB) {
@@ -119,6 +130,7 @@ wss.on('connection', (socket, request) => {
             break;
         case 'answer':
             hostInfo = meshHosts[data.id];
+            registerHost(hostInfo);
             clientInfo = meshHosts[data.clientId];
             if (isSameNetwork(remoteAddress, clientInfo.remoteAddress)) {
                 connections[clientInfo.id].send(JSON.stringify({
