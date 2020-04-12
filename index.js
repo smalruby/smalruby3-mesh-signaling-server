@@ -26,7 +26,7 @@ const wss = new WebSocket.Server({
 const meshHosts = {};
 const connections = {};
 
-const hostExpireMilliseconds = 60 * 60 * 1000;
+const hostExpireMilliseconds = 15 * 60 * 1000;
 
 const registerHost = function (hostInfo) {
     if (meshHosts.hasOwnProperty(hostInfo.id)) {
@@ -123,15 +123,26 @@ wss.on('connection', (socket, request) => {
 
             hostInfo = meshHosts[data.hostId];
             if (isSameNetwork(remoteAddress, hostInfo.remoteAddress)) {
-                connections[hostInfo.id].send(JSON.stringify({
-                    service: 'mesh',
-                    action: 'offer',
-                    data: {
-                        id: data.id,
-                        hostId: hostInfo.id,
-                        clientDescription: data.clientDescription
-                    }
-                }));
+                if (connections[hostInfo.id]) {
+                    connections[hostInfo.id].send(JSON.stringify({
+                        service: 'mesh',
+                        action: 'offer',
+                        data: {
+                            id: data.id,
+                            hostId: hostInfo.id,
+                            clientDescription: data.clientDescription
+                        }
+                    }));
+                } else {
+                    socket.send(JSON.stringify({
+                        service: 'mesh',
+                        action: 'offer',
+                        result: false,
+                        data: {
+                            error: `Host is not connected: ${hostInfo.id}`
+                        }
+                    }));
+                }
             } else {
                 socket.send(JSON.stringify({
                     service: 'mesh',
