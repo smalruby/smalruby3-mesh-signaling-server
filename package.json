@@ -1,0 +1,23 @@
+{
+  "name": "smalruby3-mesh-signaling-server",
+  "version": "1.0.0",
+  "description": "WebRTC signaling server for Smalruby3's Mesh extension",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smalruby/smalruby3-mesh-signaling-server.git"
+  },
+  "keywords": [
+    "smalruby",
+    "webrtc"
+  ],
+  "author": "Kouji Takao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smalruby/smalruby3-mesh-signaling-server/issues"
+  },
+  "homepage": "https://github.com/smalruby/smalruby3-mesh-signaling-server#readme"
+}
