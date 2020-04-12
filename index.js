@@ -98,12 +98,15 @@ wss.on('connection', (socket, request) => {
             Object.keys(meshHosts).forEach(id => {
                 const hostInfo = meshHosts[id];
                 if (isSameNetwork(remoteAddress, hostInfo.remoteAddress)) {
-                    hostIds.push(hostInfo.id);
+                    hostIds.push({
+                        id: hostInfo.id,
+                        updatedAt: hostInfo.updatedAt
+                    });
                 }
             });
 
             hostIds = hostIds.sort((a, b) => {
-                return meshHosts[b].updatedAt - meshHosts[a].updatedAt;
+                return b.updatedAt - a.updatedAt;
             });
 
             socket.send(JSON.stringify({
