@@ -167,7 +167,13 @@ wss.on('connection', (socket, request) => {
     });
 
     socket.on('close', () => {
-        console.log(`close`);
+        console.log(`socket closed`);
+
+        Object.keys(connections).forEach(id => {
+            if (connections[id] === socket) {
+                delete connections[id];
+            }
+        });
     });
 });
 
