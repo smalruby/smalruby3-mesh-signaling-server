@@ -4,6 +4,7 @@
   "description": "WebRTC signaling server for Smalruby3's Mesh extension",
   "main": "index.js",
   "scripts": {
+    "start": "node ./index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -14,10 +15,13 @@
     "smalruby",
     "webrtc"
   ],
-  "author": "Kouji Takao",
+  "author": "Ruby Programming Shounendan",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/smalruby/smalruby3-mesh-signaling-server/issues"
   },
-  "homepage": "https://github.com/smalruby/smalruby3-mesh-signaling-server#readme"
+  "homepage": "https://github.com/smalruby/smalruby3-mesh-signaling-server#readme",
+  "dependencies": {
+    "ws": "^7.2.3 "
+  }
 }
