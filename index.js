@@ -40,14 +40,18 @@ const registerHost = function (hostInfo) {
         });
     }
 
+    expireHosts();
+
+    console.log(`Registered Host:\n${JSON.stringify(meshHosts, null, 4)}`);
+};
+
+const expireHosts = function () {
     Object.keys(meshHosts).forEach(id => {
         if (new Date() - meshHosts[id].updatedAt >= hostExpireMilliseconds) {
             console.log(`Expired Host:\n${JSON.stringify(meshHosts[id], null, 4)}`);
             delete meshHosts[id];
         }
     });
-
-    console.log(`Registered Host:\n${JSON.stringify(meshHosts, null, 4)}`);
 };
 
 const isSameNetwork = function (addressA, addressB) {
@@ -88,12 +92,18 @@ wss.on('connection', (socket, request) => {
             }));
             break;
         case 'list':
+            expireHosts();
+
             hostIds = [];
             Object.keys(meshHosts).forEach(id => {
                 const hostInfo = meshHosts[id];
                 if (isSameNetwork(remoteAddress, hostInfo.remoteAddress)) {
                     hostIds.push(hostInfo.id);
                 }
+            });
+
+            hostIds = hostIds.sort((a, b) => {
+                return meshHosts[b].updatedAt - meshHosts[a].updatedAt;
             });
 
             socket.send(JSON.stringify({
@@ -106,6 +116,8 @@ wss.on('connection', (socket, request) => {
             }));
             break;
         case 'offer':
+            connections[data.id] = socket;
+
             hostInfo = meshHosts[data.hostId];
             if (isSameNetwork(remoteAddress, hostInfo.remoteAddress)) {
                 connections[hostInfo.id].send(JSON.stringify({
@@ -131,27 +143,15 @@ wss.on('connection', (socket, request) => {
         case 'answer':
             hostInfo = meshHosts[data.id];
             registerHost(hostInfo);
-            clientInfo = meshHosts[data.clientId];
-            if (isSameNetwork(remoteAddress, clientInfo.remoteAddress)) {
-                connections[clientInfo.id].send(JSON.stringify({
-                    service: 'mesh',
-                    action: 'answer',
-                    data: {
-                        id: data.id,
-                        clientId: clientInfo.id,
-                        hostDescription: data.hostDescription
-                    }
-                }));
-            } else {
-                socket.send(JSON.stringify({
-                    service: 'mesh',
-                    action: 'answer',
-                    result: false,
-                    data: {
-                        error: `Client is not same network`
-                    }
-                }));
-            }
+            connections[data.clientId].send(JSON.stringify({
+                service: 'mesh',
+                action: 'answer',
+                data: {
+                    id: data.id,
+                    clientId: data.clientId,
+                    hostDescription: data.hostDescription
+                }
+            }));
             break;
         default:
             socket.send(JSON.stringify({
