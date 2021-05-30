@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/smalruby/smalruby3-mesh-signaling-server#readme",
   "dependencies": {
-    "ws": "^7.2.3 "
+    "ws": "^7.4.6"
   }
 }
